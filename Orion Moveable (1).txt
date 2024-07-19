@@ -1,0 +1,593 @@
+-- Moveable Work At Moblie/PC
+local Players = game:GetService("Players")
+local PathfindingService = game:GetService("PathfindingService")
+local Workspace = game:GetService("Workspace")
+
+-- Global Variables for Toggle
+_G.collect = _G.collect or true
+_G.farmLuckyPotions = _G.farmLuckyPotions or false
+_G.farmSpeedPotions = _G.farmSpeedPotions or false
+_G.farmCoins = _G.farmCoins or false
+_G.processedPotions = {}
+_G.processedCoins = {}
+_G.potionQueue = {}
+_G.coinQueue = {}
+_G.currentItem = nil
+
+-- Constants (adjust as needed)
+local AGENT_MAX_SLOPE = 15
+local PROXIMITY_DISTANCE = 4
+local PATH_RECOMPUTE_INTERVAL = 1 -- Adjusted to 1 second
+local PROCESSING_DELAY = 0.125 -- Delay of 0.125 seconds after processing an item
+local AIMBOT_SMOOTHNESS = 0.05 -- Adjust the smoothness of the aimbot
+
+-- Function to find all potion casings
+local function findAllPotionCasings()
+    local player = Players.LocalPlayer
+    local character = player and player.Character
+    local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+
+    if not humanoidRootPart then
+        return {}
+    end
+
+    local potionCasings = {}
+    local droppedItems = Workspace.DroppedItems:GetChildren()
+
+    for _, item in ipairs(droppedItems) do
+        if (item.Name == "Lucky Potion" and _G.farmLuckyPotions or item.Name == "Speed Potion" and _G.farmSpeedPotions) and not _G.processedPotions[item] then
+            local casing = item:FindFirstChild("Casing")
+            if casing then
+                table.insert(potionCasings, { Item = item, Casing = casing })
+            end
+        end
+    end
+
+    -- Prioritize closest potion casing
+    table.sort(potionCasings, function(a, b)
+        local distanceA = (a.Casing.Position - humanoidRootPart.Position).magnitude
+        local distanceB = (b.Casing.Position - humanoidRootPart.Position).magnitude
+        return distanceA < distanceB
+    end)
+
+    return potionCasings
+end
+
+-- Function to find all coins
+local function findAllCoins()
+    local player = Players.LocalPlayer
+    local character = player and player.Character
+    local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+
+    if not humanoidRootPart then
+        return {}
+    end
+
+    local coins = {}
+    local droppedItems = Workspace.DroppedItems:GetChildren()
+
+    for _, item in ipairs(droppedItems) do
+        if (item.Name == "Coin" or item.Name == "Gilded Coin") and not _G.processedCoins[item] then
+            table.insert(coins, { Item = item })
+        end
+    end
+
+    -- Prioritize closest coin
+    table.sort(coins, function(a, b)
+        local distanceA = (a.Item.Position - humanoidRootPart.Position).magnitude
+        local distanceB = (b.Item.Position - humanoidRootPart.Position).magnitude
+        return distanceA < distanceB
+    end)
+
+    return coins
+end
+
+-- Function to smoothly adjust player's aim towards the item
+local function aimAtItem(itemPosition)
+    local player = Players.LocalPlayer
+    local camera = Workspace.CurrentCamera
+
+    if player and camera then
+        local character = player.Character
+        if not character then
+            return
+        end
+
+        local characterPosition = character.PrimaryPart and character.PrimaryPart.Position or character.HumanoidRootPart.Position
+        local direction = (itemPosition - characterPosition).unit
+
+        -- Smoothly transition the player's aim towards the item
+        local startTime = tick()
+        local duration = AIMBOT_SMOOTHNESS -- Adjust smoothness as needed
+        local elapsedTime = 0
+
+        while elapsedTime < duration do
+            elapsedTime = tick() - startTime
+            local t = elapsedTime / duration
+            local currentLookAt = camera.CFrame.LookVector:Lerp(direction, t)
+            camera.CFrame = CFrame.new(characterPosition, characterPosition + currentLookAt)
+            wait() -- Yield briefly to prevent freezing the script
+        end
+
+        -- Set final aim direction
+        camera.CFrame = CFrame.new(characterPosition, itemPosition)
+    end
+end
+
+-- Function to handle moving to and picking up an item
+local function moveToAndPickupItem(itemData)
+    local player = Players.LocalPlayer
+    local character = player and player.Character
+    if not character then
+        return
+    end
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+
+    if not humanoid or not humanoidRootPart then
+        return
+    end
+
+    local item = itemData.Item
+    local position = itemData.Casing and itemData.Casing.Position or item.Position
+
+    -- Adjust aim to look at the item
+    aimAtItem(position)
+
+    -- Calculate Agent Radius and Height based on character size
+    local agentRadius = humanoidRootPart.Size.X / 2
+    local agentHeight = humanoidRootPart.Size.Y
+
+    local function computeAndMoveTo(position)
+        local path = PathfindingService:CreatePath({
+            AgentRadius = agentRadius,
+            AgentHeight = agentHeight,
+            AgentCanJump = true,
+            AgentMaxSlope = AGENT_MAX_SLOPE
+        })
+
+        local success, errorMessage = pcall(function()
+            path:ComputeAsync(humanoidRootPart.Position, position)
+        end)
+
+        if success then
+            local pathResult = path:GetWaypoints()
+
+            if pathResult then
+                for _, waypoint in ipairs(pathResult) do
+                    humanoid:MoveTo(waypoint.Position)
+                    humanoid.MoveToFinished:Wait()
+                end
+
+                humanoid:MoveTo(position)
+                humanoid.MoveToFinished:Wait()
+
+                local distanceToItem = (position - humanoidRootPart.Position).magnitude
+                if distanceToItem <= PROXIMITY_DISTANCE then
+                    humanoidRootPart.CFrame = CFrame.new(position)
+
+                    -- Check for ProximityPrompt inside the item model
+                    if _G.collect then
+                        local proximityPrompt = nil
+
+                        if itemData.Casing then
+                            -- Check directly on the potion casing
+                            proximityPrompt = itemData.Casing:FindFirstChildOfClass("ProximityPrompt")
+
+                            -- If not found, check inside the model if ProximityPrompt is nested
+                            if not proximityPrompt then
+                                local model = itemData.Item:FindFirstChildOfClass("Model")
+                                if model then
+                                    proximityPrompt = model:FindFirstChildOfClass("ProximityPrompt")
+                                end
+                            end
+                        else
+                            proximityPrompt = item:FindFirstChildOfClass("ProximityPrompt")
+                        end
+
+                        if proximityPrompt then
+                            -- Use FireProximityPrompt to simulate user interaction
+                            pcall(function()
+                                fireproximityprompt(proximityPrompt)
+                            end)
+                        end
+                    end
+
+                    -- Mark this item as processed
+                    if itemData.Casing then
+                        _G.processedPotions[itemData.Item] = true
+                    else
+                        _G.processedCoins[itemData.Item] = true
+                    end
+
+                    -- Reset current item after pickup
+                    _G.currentItem = nil
+                end
+            end
+        else
+            warn("Failed to compute path:", errorMessage)
+        end
+    end
+
+    local lastComputedTime = 0
+    local pathCompleted = false
+    while (_G.farmLuckyPotions or _G.farmSpeedPotions or _G.farmCoins) and not pathCompleted do
+        local currentTime = tick()
+        if currentTime - lastComputedTime >= PATH_RECOMPUTE_INTERVAL then
+            pathCompleted = computeAndMoveTo(position)
+            lastComputedTime = currentTime
+        end
+        wait(0.1) -- Adjust wait time as needed for smoother movement and performance
+    end
+end
+
+-- Function to continuously check for potions and coins and handle them
+local function checkItems()
+    while _G.farmLuckyPotions or _G.farmSpeedPotions or _G.farmCoins do
+        if _G.farmLuckyPotions or _G.farmSpeedPotions then
+            local potionCasings = findAllPotionCasings()
+
+            -- Add newly spawned potions to the queue
+            for _, potionCasingData in ipairs(potionCasings) do
+                if not _G.processedPotions[potionCasingData.Item] then
+                    local foundInQueue = false
+                    for _, queuedPotion in ipairs(_G.potionQueue) do
+                        if queuedPotion.Item == potionCasingData.Item then
+                            foundInQueue = true
+                            break
+                        end
+                    end
+                    if not foundInQueue then
+                        table.insert(_G.potionQueue, potionCasingData)
+                    end
+                end
+            end
+
+            -- Process the item in the queue if not already processing one
+            if _G.currentItem == nil and #_G.potionQueue > 0 then
+                _G.currentItem = table.remove(_G.potionQueue, 1) -- Take the first potion in the queue
+                spawn(function()
+                    moveToAndPickupItem(_G.currentItem)
+                    wait(PROCESSING_DELAY) -- Wait 0.125 seconds before processing the next item
+                end)
+            end
+        end
+
+        if _G.farmCoins then
+            local coins = findAllCoins()
+
+            -- Add newly spawned coins to the queue
+            for _, coinData in ipairs(coins) do
+                if not _G.processedCoins[coinData.Item] then
+                    local foundInQueue = false
+                    for _, queuedCoin in ipairs(_G.coinQueue) do
+                        if queuedCoin.Item == coinData.Item then
+                            foundInQueue = true
+                            break
+                        end
+                    end
+                    if not foundInQueue then
+                        table.insert(_G.coinQueue, coinData)
+                    end
+                end
+            end
+
+            -- Process the item in the queue if not already processing one
+            if _G.currentItem == nil and #_G.coinQueue > 0 then
+                _G.currentItem = table.remove(_G.coinQueue, 1) -- Take the first coin in the queue
+                spawn(function()
+                    moveToAndPickupItem(_G.currentItem)
+                    wait(PROCESSING_DELAY) -- Wait 0.125 seconds before processing the next item
+                end)
+            end
+        end
+
+        wait(1) -- Adjust delay as needed to prevent spamming
+    end
+end
+
+-- Automatically start checking for potions and coins
+spawn(checkItems)
+
+-- Listen for new potion and coin spawns
+local function onNewItemAdded(newItem)
+    if _G.farmLuckyPotions or _G.farmSpeedPotions then
+        local casing = newItem:FindFirstChild("Casing")
+        if casing and not _G.processedPotions[newItem] then
+            local potionCasingData = { Item = newItem, Casing = casing }
+            table.insert(_G.potionQueue, potionCasingData)
+            
+            -- Process the item if not currently processing one
+            if _G.currentItem == nil then
+                _G.currentItem = table.remove(_G.potionQueue, 1) -- Take the first potion in the queue
+                spawn(function()
+                    moveToAndPickupItem(_G.currentItem)
+                    wait(PROCESSING_DELAY) -- Wait 0.125 seconds before processing the next item
+                end)
+            end
+        end
+    end
+    
+    if _G.farmCoins then
+        if (newItem.Name == "Coin" or newItem.Name == "Gilded Coin") and not _G.processedCoins[newItem] then
+            local coinData = { Item = newItem }
+            table.insert(_G.coinQueue, coinData)
+            
+            -- Process the item if not currently processing one
+            if _G.currentItem == nil then
+                _G.currentItem = table.remove(_G.coinQueue, 1) -- Take the first coin in the queue
+                spawn(function()
+                    moveToAndPickupItem(_G.currentItem)
+                    wait(PROCESSING_DELAY) -- Wait 0.125 seconds before processing the next item
+                end)
+            end
+        end
+    end
+end
+
+Workspace.DroppedItems.ChildAdded:Connect(onNewItemAdded)
+
+-- Global ESP toggle variable
+_G.ESP = _G.ESP or true
+
+-- Table to store ESP elements
+local espElements = {}
+
+-- Function to create a BillboardGui with text and rectangle
+local function createESP(item, color)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Adornee = item
+    billboard.Size = UDim2.new(0, 50, 0, 50)  -- Adjusted size for the BillboardGui (size of a head)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)  -- Adjust the studs offset if needed
+    billboard.AlwaysOnTop = true
+
+    local frame = Instance.new("Frame", billboard)
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundTransparency = 0.7  -- Adjusted transparency level
+    frame.BackgroundColor3 = color
+
+    local itemName = Instance.new("TextLabel", billboard)
+    itemName.Size = UDim2.new(1, 0, 0.5, 0)
+    itemName.Position = UDim2.new(0, 0, 0, 0)
+    itemName.TextColor3 = Color3.new(1, 1, 1)
+    itemName.BackgroundTransparency = 1
+    itemName.Font = Enum.Font.SourceSansBold
+    itemName.TextSize = 12  -- Adjusted text size (smaller)
+
+    local distanceLabel = Instance.new("TextLabel", billboard)
+    distanceLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    distanceLabel.Position = UDim2.new(0, 0, 0.5, 0)
+    distanceLabel.TextColor3 = Color3.new(1, 1, 1)
+    distanceLabel.BackgroundTransparency = 1
+    distanceLabel.Font = Enum.Font.SourceSansBold
+    distanceLabel.TextSize = 12  -- Adjusted text size (smaller)
+
+    return billboard, itemName, distanceLabel
+end
+
+-- Function to create a Beam path to the item
+local function createBeam(playerPos, itemPos, color)
+    local attachment0 = Instance.new("Attachment")
+    attachment0.WorldPosition = playerPos
+
+    local attachment1 = Instance.new("Attachment")
+    attachment1.WorldPosition = itemPos
+
+    local beam = Instance.new("Beam")
+    beam.Attachment0 = attachment0
+    beam.Attachment1 = attachment1
+    beam.Color = ColorSequence.new(color)
+    beam.Width0 = 0.2
+    beam.Width1 = 0.2
+    beam.Transparency = NumberSequence.new(0.5)
+    beam.Parent = attachment0
+
+    return beam, attachment0, attachment1
+end
+
+-- Function to clear all ESP elements
+local function clearESP()
+    for item, espData in pairs(espElements) do
+        espData.esp:Destroy()
+        espData.beam:Destroy()
+        espData.attachment0:Destroy()
+        espData.attachment1:Destroy()
+        espElements[item] = nil
+    end
+end
+
+while true do
+    if _G.ESP then
+
+        if humanoidRootPart then
+            -- Update or create ESP for visible items
+            for _, item in pairs(droppedItems) do
+                if item:IsA("Model") and (item.Name == "Lucky Potion" or item.Name == "Eternal Flame" or item.Name == "Wind essence" or item.Name == "Coin" or item.Name == "Speed Potion" or item.Name == "Gilded Coin" or item.Name == "Rainy Bottle") then
+                    local itemPart
+                    local color
+
+                    -- Assign itemPart and color based on the item's name
+                    if item.Name == "Lucky Potion" then
+                        itemPart = item:FindFirstChild("Casing")
+                        color = Color3.new(0, 1, 0) -- green
+                    elseif item.Name == "Eternal Flame" then
+                        itemPart = item:FindFirstChild("Glass")
+                        color = Color3.new(1, 0, 0) -- red
+                    elseif item.Name == "Wind essence" then
+                        itemPart = item:FindFirstChild("windb")
+                        color = Color3.new(1, 1, 1) -- white
+                    elseif item.Name == "Coin" then
+                        itemPart = item
+                        color = Color3.new(1, 1, 0) -- yellow
+                    elseif item.Name == "Speed Potion" then
+                        itemPart = item:FindFirstChild("Casing")
+                        color = Color3.new(0, 1, 1) -- light blue
+                    elseif item.Name == "Gilded Coin" then
+                        itemPart = item
+                        color = Color3.new(1, 0.5, 0) -- orange
+                    elseif item.Name == "Rainy Bottle" then
+                        itemPart = item:FindFirstChild("Bottle")
+                        color = Color3.new(0, 0, 1) -- blue
+                    end
+
+                    if itemPart and color then
+                        if not espElements[item] then
+                            local esp, itemName, distanceLabel = createESP(itemPart, color)
+                            esp.Parent = itemPart
+                            local playerPos = humanoidRootPart.Position
+                            local beam, attachment0, attachment1 = createBeam(playerPos, itemPart.Position, color)
+                            attachment0.Parent = humanoidRootPart
+                            attachment1.Parent = itemPart
+                            espElements[item] = {esp = esp, itemName = itemName, distanceLabel = distanceLabel, beam = beam, attachment0 = attachment0, attachment1 = attachment1}
+                        else
+                            local espData = espElements[item]
+                            local distance = (humanoidRootPart.Position - itemPart.Position).magnitude
+                            espData.itemName.Text = item.Name
+                            espData.distanceLabel.Text = tostring(math.floor(distance)) .. " studs"
+                            espData.attachment0.WorldPosition = humanoidRootPart.Position
+                            espData.attachment1.WorldPosition = itemPart.Position
+                        end
+                    end
+                end
+            end
+
+            -- Remove ESP elements for items that are no longer visible
+            for item, espData in pairs(espElements) do
+                if not item:IsDescendantOf(Workspace) then
+                    espData.esp:Destroy()
+                    espData.beam:Destroy()
+                    espData.attachment0:Destroy()
+                    espData.attachment1:Destroy()
+                    espElements[item] = nil
+                end
+            end
+        end
+    else
+        -- Clear all ESP elements if ESP is toggled off
+        clearESP()
+    end
+
+    wait(0.1) -- Update frequency
+end
+
+
+-- Script loaded successfully
+print("script loaded successfully.")
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/KOKAKAKA/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Synthia Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest", IntroEnabled = true, IntroText = "Synthia Loaded", IntroIcon = "rbxassetid://18546366423", Icon = "rbxassetid://18546366423"})
+local Tab = Window:MakeTab({
+	Name = "Auto Farm",
+	Icon = "rbxassetid://18546419813",
+	PremiumOnly = false
+})
+local Section = Tab:AddSection({
+	Name = "Config"
+})
+Tab:AddToggle({
+	Name = "Lucky Potion",
+	Default = false,
+	Callback = function(Value)
+local aa = Value
+local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://4612375802"
+        sound.Parent = game:GetService("SoundService")
+        sound:Play()
+	end    
+})
+Tab:AddToggle({
+	Name = "Speed Potion",
+	Default = false,
+	Callback = function(Value)
+local bb = Value
+local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://4612375802"
+        sound.Parent = game:GetService("SoundService")
+        sound:Play()
+	end    
+})
+Tab:AddToggle({
+	Name = "Coins",
+	Default = false,
+	Callback = function(Value)
+local cc = Value
+local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://4612375802"
+        sound.Parent = game:GetService("SoundService")
+        sound:Play()
+	end    
+})
+local Section = Tab:AddSection({
+	Name = "Auto Farm"
+})
+Tab:AddToggle({
+	Name = "Auto Farm",
+	Default = false,
+	Callback = function(Value)
+	while Value do
+_G.farmLuckyPotions = aa
+_G.farmSpeedPotions = bb
+_G.farmCoins = cc
+wait(1)
+end
+local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://4612375802"
+        sound.Parent = game:GetService("SoundService")
+        sound:Play()
+	end    
+})
+Tab:AddToggle({
+	Name = "ESP",
+	Default = false,
+	Callback = function(Value)
+		local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://4612375802"
+        sound.Parent = game:GetService("SoundService")
+        sound:Play()
+        _G.ESP = Value
+	end    
+})
+local Tab = Window:MakeTab({
+	Name = "Credits",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+local Section = Tab:AddSection({
+	Name = "Owner / Founder"
+})
+Tab:AddButton({
+	Name = "Kia_Ainsleyy",
+	Callback = function()
+      		print("Kia_Ainsleyy")
+      local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://4612375802"
+        sound.Parent = game:GetService("SoundService")
+        sound:Play()
+  	end    
+})
+local Section = Tab:AddSection({
+	Name = "Co Founder / Developer"
+})
+Tab:AddButton({
+	Name = "Valorio",
+	Callback = function()
+      		print("Valorio")
+      local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://4612375802"
+        sound.Parent = game:GetService("SoundService")
+        sound:Play()
+  	end    
+})
+local Section = Tab:AddSection({
+	Name = "Co Owner / Server Designer"
+})
+Tab:AddButton({
+	Name = "Niko",
+	Callback = function()
+      		print("Niko")
+      local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://4612375802"
+        sound.Parent = game:GetService("SoundService")
+        sound:Play()
+  	end    
+})
