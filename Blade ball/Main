@@ -796,7 +796,7 @@ CheckKey.MouseButton1Click:Connect(function()
         scriptExecuted = true  -- Mark script as executed
 
         -- Put Your Script Here
-        loadded.lua
+        loadded.lua()
     else
         TextBox.PlaceholderText = "Invalid key or HWID. Try again."
         TextBox.Text = ""
