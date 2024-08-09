@@ -1,4 +1,4 @@
-local function loadded.lua()
+local function loaddedstuff()
 setfpscap(165)
 
 local Stats = game:GetService('Stats')
@@ -796,7 +796,7 @@ CheckKey.MouseButton1Click:Connect(function()
         scriptExecuted = true  -- Mark script as executed
 
         -- Put Your Script Here
-        loadded.lua()
+        loaddedstuff()
     else
         TextBox.PlaceholderText = "Invalid key or HWID. Try again."
         TextBox.Text = ""
@@ -816,5 +816,5 @@ if savedKey and validateKeyAndHwid(savedKey) then
     scriptExecuted = true  -- Mark script as executed
     ScreenGui:Destroy()
     -- Put Your Script Here
-    loadded.lua()
+    loaddedstuff()
 end
