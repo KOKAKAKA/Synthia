@@ -678,12 +678,13 @@ local CheckKeyCorner = Instance.new("UICorner")
 CheckKeyCorner.CornerRadius = UDim.new(0, 5)
 CheckKeyCorner.Parent = CheckKey
 
+-- Configuration
 local serverUrl = "https://joint-marten-virtually.ngrok-free.app"  -- Your server URL
-local saveFileName = "SavedSynthiaKey.txt"
 local scriptExecuted = false  -- Flag to prevent multiple executions
-
+local username = "Synthia"  -- Replace with dynamic username
+local saveFileName = "Saved" .. username .. "Key.json"
 local function fetchKeysAndHwids()
-    local url = serverUrl .. "/KeyRaw"
+    local url = serverUrl .. "/KeyRaw/" .. username
     local success, response = pcall(function()
         return game:HttpGet(url)
     end)
@@ -715,7 +716,7 @@ local function validateKeyAndHwid(userKey)
     if not storedHwid then
         return false
     elseif storedHwid == "Nil" then
-        local updateUrl = serverUrl .. "/update-hwid?key=" .. HttpService:UrlEncode(userKey) .. "&hwid=" .. HttpService:UrlEncode(userHwid)
+        local updateUrl = serverUrl .. "/update-hwid/".. username .. "?key=" .. HttpService:UrlEncode(userKey) .. "&hwid=" .. HttpService:UrlEncode(userHwid)
         local updateSuccess, response = pcall(function()
             return game:HttpGet(updateUrl)
         end)
@@ -762,59 +763,59 @@ end
 
 local function popAnimation(element)
     local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local increaseSize = {Size = element.Size + UDim2.new(0, 10, 0, 10)}
-    local decreaseSize = {Size = element.Size}
-    
-    local popTween = TweenService:Create(element, tweenInfo, increaseSize)
-    local resetTween = TweenService:Create(element, tweenInfo, decreaseSize)
-
-    popTween:Play()
-    popTween.Completed:Connect(function()
-        resetTween:Play()
+    local popUp = TweenService:Create(element, tweenInfo, {Size = element.Size + UDim2.new(0, 5, 0, 5)})
+    local popDown = TweenService:Create(element, tweenInfo, {Size = element.Size})
+    popUp:Play()
+    popUp.Completed:Connect(function()
+        popDown:Play()
     end)
 end
 
+local function notify(title, text)
+    game.StarterGui:SetCore("SendNotification", {
+        Title = title;
+        Text = text;
+        Duration = 5;
+    })
+end
+
+local function executeScript()
+    if not scriptExecuted then
+        scriptExecuted = true  -- Prevent multiple executions
+        -- Replace this with the actual script you want to run after key verification
+        loaddedstuff()
+        notify("Success", "Key verified. Script is now running!")
+    end
+end
+
 GetKey.MouseButton1Click:Connect(function()
+    setclipboard("Nothing")
+    notify("Copied", "Copied Nothing")
     popAnimation(GetKey)
-    setclipboard("https://discord.com/invite/9AzqCwWSg5")
-    TextBox.PlaceholderText = "The Get Key Link Is In Your Clipboard"
-    TextBox.Text = ""
 end)
 
 CheckKey.MouseButton1Click:Connect(function()
-    if scriptExecuted then return end  -- Prevent multiple executions
-
-    popAnimation(CheckKey)
-
     local enteredKey = TextBox.Text
+
+    if enteredKey == "" then
+        notify("Error", "Please enter a key.")
+        return
+    end
+
     if validateKeyAndHwid(enteredKey) then
         saveKey(enteredKey)
-        TextBox.PlaceholderText = "Correct Key!"
-        TextBox.Text = ""
-        wait(1)
+        executeScript()
         ScreenGui:Destroy()
-        scriptExecuted = true  -- Mark script as executed
-
-        -- Put Your Script Here
-        loaddedstuff()
     else
-        TextBox.PlaceholderText = "Invalid key or HWID. Try again."
-        TextBox.Text = ""
-        wait(1)
-        TextBox.PlaceholderText = "Enter Key..."
+        notify("Error", "Invalid key or HWID.")
+        deleteKey()  -- Clear invalid key
     end
+
+    popAnimation(CheckKey)
 end)
 
-TextBox.FocusLost:Connect(function()
-    popAnimation(TextBox)
-end)
-
--- Auto-load and validate saved key
 local savedKey = loadKey()
 if savedKey and validateKeyAndHwid(savedKey) then
-    wait(0.5)
-    scriptExecuted = true  -- Mark script as executed
+    executeScript()
     ScreenGui:Destroy()
-    -- Put Your Script Here
-    loaddedstuff()
 end
