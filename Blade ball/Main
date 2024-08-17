@@ -397,15 +397,6 @@ task.defer(function()
     end)
 end)
 
-local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Stats = game:GetService("Stats")
-local workspace = game:GetService("Workspace")
-local camera = workspace.CurrentCamera
-local local_player = game.Players.LocalPlayer
-local startup = require(game.ServerScriptService.Startup) -- Adjust this as per your project structure
-local parry_remote = ReplicatedStorage.Remotes.ParryRemote
-
 ReplicatedStorage.Remotes.ParrySuccessAll.OnClientEvent:Connect(function()
     aura.hit_Count += 1
 
