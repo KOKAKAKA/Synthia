@@ -2539,7 +2539,7 @@ spawn(function()
     require(game.ReplicatedStorage.Notification).new("<Color=Yellow>Dev: Kia_Ainsleyy<Color=/>"):Display()
 end)
 
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/KOKAKAKA/Orion/main/source')))()
 local Window = OrionLib:MakeWindow({Name = "Synthia Hub", HidePremium = false, IntroText = "Synthia Hub", SaveConfig = true, ConfigFolder = "Synthia Hub"})
 
 OrionLib:MakeNotification({
