@@ -46,7 +46,7 @@ local spectate_Enabled = false
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/flezzpe/Nurysium/main/nurysium_ui.lua"))()
 task.wait(0.5)
 
-library:init("Baka Hub V.0.2 (Skidded By Kia)", game:GetService("UserInputService").TouchEnabled, game:GetService("CoreGui"))
+library:init("Synthia On Top", game:GetService("UserInputService").TouchEnabled, game:GetService("CoreGui"))
 
 library:create_section("Auto Parry", 17440545793)
 library:create_section("Something", 17440868530)
@@ -1063,7 +1063,7 @@ end)
 			aura_table.spam_Range = math.clamp(math.max(math.max(ping / 10, 15) + ball_Speed / 7.5, 8.4), 30, 1000)
 
 
-			local speedFactor = 3.3 - (ping / 100)
+			local speedFactor = 3.5 - (ping / 100)
 
 			local speedFactorPingBased = 5.15 - (ping / 100)
 
