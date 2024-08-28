@@ -7,6 +7,9 @@ spawn(function()
     until game:IsLoaded()
     repeat
         task.wait()
+    until game.Players
+    repeat
+        task.wait()
     until game.Players.LocalPlayer and game.Players.LocalPlayer.Team ~= nil 
     wait(1.5)
     require(game.ReplicatedStorage.Notification).new("<Color=Red>Welcome Synthia Hub!<Color=/>"):Display()
@@ -17,6 +20,7 @@ spawn(function()
     wait(.24)
     require(game.ReplicatedStorage.Notification).new("<Color=Yellow>Dev: Kia Ainsleyy<Color=/>"):Display()
 end)
+
 getgenv().Faster = { 
     ['CDK Super Fast'] = true, -- Spawn Admin / เสกแอดมิน
     ['Buy Color Haki'] = 3 -- Legendary Haki Max 3
