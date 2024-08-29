@@ -1,5 +1,5 @@
-local Update = loadstring(Game:HttpGet("https://raw.githubusercontent.com/Basicallyybeta/uii/main/mingaminguie.lua")()
-local Alert = loadstring(Game:HttpGet"https://raw.githubusercontent.com/Basicallyybeta/uii/main/Mingameui.lua")()
+local Update = loadstring(Game:HttpGet("https://raw.githubusercontent.com/Basicallyybeta/uii/main/mingaminguie.lua"))()
+local Alert = loadstring(Game:HttpGet("https://raw.githubusercontent.com/Basicallyybeta/uii/main/Mingameui.lua"))()
 local Library = Update:Window("Synthia Hub")
 local Main = Library:Tab("Main","rbxassetid://10723407389")
 local Set = Library:Tab("Setting","rbxassetid://10734950309")
