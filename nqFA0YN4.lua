@@ -1063,7 +1063,7 @@ end)
 			aura_table.spam_Range = math.clamp(math.max(math.max(ping / 10, 15) + ball_Speed / 7.5, 8.4), 30, 1000)
 
 
-			local speedFactor = 3.5 - (ping / 100)
+			local speedFactor = 3.3 - (ping / 100)
 
 			local speedFactorPingBased = 5.15 - (ping / 100)
 
