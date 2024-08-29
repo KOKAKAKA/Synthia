@@ -481,41 +481,63 @@ local function clamp(value, min, max)
 	return math.max(min, math.min(max, value))
 end
 
-
-
 task.spawn(function()
-	local self = Nurysium_Util.getBall()
-	local Visualize = Instance.new("Part",workspace)
-	Visualize.Color = Color3.new(0, 1, 0)
-	Visualize.Material = Enum.Material.ForceField
-	Visualize.Transparency = 0.5
-	Visualize.Anchored = true
-	Visualize.CanCollide = false
-	Visualize.CastShadow = false
-	Visualize.Shape = Enum.PartType.Ball
-	Visualize.Size = Vector3.new(30,30,30)
+    -- Create parry range visualizer (green)
+    local parryVisualize = Instance.new("Part", workspace)
+    parryVisualize.Color = Color3.new(0, 1, 0) -- Green
+    parryVisualize.Material = Enum.Material.ForceField
+    parryVisualize.Transparency = 0.5
+    parryVisualize.Anchored = true
+    parryVisualize.CanCollide = false
+    parryVisualize.CastShadow = false
+    parryVisualize.Shape = Enum.PartType.Ball
+    parryVisualize.Size = Vector3.new(30, 30, 30)
 
-	local Highlight = Instance.new("Highlight")
-	Highlight.Parent = Visualize
-	Highlight.Enabled = true
-	Highlight.FillTransparency = 0
-	Highlight.OutlineColor = Color3.new(1, 1, 1)
+    local parryHighlight = Instance.new("Highlight")
+    parryHighlight.Parent = parryVisualize
+    parryHighlight.Enabled = true
+    parryHighlight.FillTransparency = 0
+    parryHighlight.OutlineColor = Color3.new(1, 1, 1)
 
-	RunService.RenderStepped:Connect(function()
-		if visualize_Enabled and self and local_player then
-			Visualize.Transparency = 0
-			Visualize.Material = Enum.Material.ForceField
-			Visualize.Size = Vector3.new(aura_table.parry_Range,aura_table.parry_Range,aura_table.parry_Range)
-			Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
-		else
-			Visualize.Material = Enum.Material.ForceField
-			Visualize.Transparency = 1
-		end	
-	end)
+    -- Create spam range visualizer (red)
+    local spamVisualize = Instance.new("Part", workspace)
+    spamVisualize.Color = Color3.new(1, 0, 0) -- Red
+    spamVisualize.Material = Enum.Material.ForceField
+    spamVisualize.Transparency = 0.5
+    spamVisualize.Anchored = true
+    spamVisualize.CanCollide = false
+    spamVisualize.CastShadow = false
+    spamVisualize.Shape = Enum.PartType.Ball
+    spamVisualize.Size = Vector3.new(30, 30, 30)
+
+    local spamHighlight = Instance.new("Highlight")
+    spamHighlight.Parent = spamVisualize
+    spamHighlight.Enabled = true
+    spamHighlight.FillTransparency = 0
+    spamHighlight.OutlineColor = Color3.new(1, 1, 1)
+
+    RunService.RenderStepped:Connect(function()
+        if visualize_Enabled and self and local_player then
+            -- Update parry range visualizer
+            parryVisualize.Transparency = 0
+            parryVisualize.Material = Enum.Material.ForceField
+            parryVisualize.Size = Vector3.new(aura_table.parry_Range, aura_table.parry_Range, aura_table.parry_Range)
+            parryVisualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
+
+            -- Update spam range visualizer
+            spamVisualize.Transparency = 0
+	    spamVisualize.Material = Enum.Material.ForceField
+            spamVisualize.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
+            spamVisualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
+        else
+            -- Reset visualizers
+            parryVisualize.Material = Enum.Material.ForceField
+            parryVisualize.Transparency = 1
+            spamVisualize.Material = Enum.Material.ForceField
+            spamVisualize.Transparency = 1
+        end
+    end)
 end)
-
-print("Baka Hub XD LEST GOOOO")
-
 task.defer(function()
 	game:GetService("RunService").Heartbeat:Connect(function()
 		if not local_player.Character then
