@@ -20,7 +20,7 @@ _G.AI = false
 _G.Farm = false
 _G.TP = false
 _G.Spectate = false
-
+loadstring(game:HttpGet('https://raw.githubusercontent.com/KOKAKAKA/Synthia/main/blademodule.lua'))()
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -35,16 +35,20 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.End
 })
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "atom" }),
+  Main = Window:AddTab({ Title = "Main", Icon = "atom" }),
   Misc = Window:AddTab({ Title = "Misc", Icon = "settings-2" }),
-  Main = Window:AddTab({ Title = "Credits", Icon = "user" }),
+  Credits = Window:AddTab({ Title = "Credits", Icon = "user" }),
 }
 local Options = Fluent.Options
 do
-local Toggle = Tabs.Main:AddToggle("Auto Parry", {Title = "Main Parry", Default = false })
-
-    Toggle:OnChanged(function()
-        _G.Parry = Options.Toggle.Value
-        _G.Spam = Options.Toggle.Value
-        _G.Visual = Options.Toggle.Value
-    end)
+local Toggle = Tab:AddToggle("Auto Parry", 
+{
+    Title = "Auto Parry", 
+    Description = "Main Parry",
+    Default = false
+    Callback = function(state)
+    _G.Parry = state
+    _G.Spam = state
+    _G.Visual = state
+    end 
+})
