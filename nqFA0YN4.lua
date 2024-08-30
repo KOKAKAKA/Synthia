@@ -41,13 +41,10 @@ local Tabs = {
 }
 local Options = Fluent.Options
 do
-Tabs.Main:AddButton({
-        Title = "Auto Parry",
-        Description = "Main Parry",
-        Callback = function()
-        _G.Parry = true
-        _G.Spam = true
-        _G.Visual = true
-        _G.CurveSpam = true
-        end
-    })
+local Toggle = Tabs.Main:AddToggle("Auto Parry", {Title = "Main Parry", Default = false })
+
+    Toggle:OnChanged(function()
+        _G.Parry = Options.Toggle.Value
+        _G.Spam = Options.Toggle.Value
+        _G.Visual = Options.Toggle.Value
+    end)
