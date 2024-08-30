@@ -43,14 +43,6 @@ local auto_win = false
 local tp_hit = false
 local spectate_Enabled = false
 
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/flezzpe/Nurysium/main/nurysium_ui.lua"))()
-task.wait(0.5)
-
-library:init("Synthia On Top", game:GetService("UserInputService").TouchEnabled, game:GetService("CoreGui"))
-
-library:create_section("Auto Parry", 17440545793)
-library:create_section("Something", 17440868530)
-
 local Services = {game:GetService("AdService"),game:GetService("SocialService")}
 
 function SwordCrateManual()
@@ -852,64 +844,6 @@ end)
 		Takentime = tick() - aura_table.hit_Time
 	end)
 
-
-	library:create_toggle("Auto Parry", "Auto Parry", function(toggled)
-		aura_Enabled = toggled
-	end)
-
-	library:create_toggle("Mauaul Spam", "Auto Parry", function(toggled)
-		ManualSpam()
-	end)
-
-	library:create_toggle("Auto Spam", "Auto Parry", function(toggled)
-		auto_spam = toggled
-	end)
-
-	library:create_toggle("Auto Curve", "Auto Parry", function(toggled)
-		auto_curve = toggled
-	end)
-
-	library:create_toggle("Training Mode", "Auto Parry", function(toggled)
-		training_mode = toggled
-	end)
-
-	library:create_toggle("Ai", "Auto Parry", function(toggled)
-		ai_Enabled = toggled
-	end)
-
-	library:create_toggle("Auto Win (not 100%)", "Auto Parry", function(toggled)
-		auto_win = toggled
-	end)
-
-	library:create_toggle("Tp Hit", "Auto Parry", function(toggled)
-		tp_hit = toggled
-	end)
-
-	library:create_toggle("Visualize", "Auto Parry", function(toggled)
-		visualize_Enabled = toggled
-	end)
-
-	library:create_toggle("Hit Sound", "Something", function(toggled)
-		hit_sound_Enabled = toggled
-	end)
-
-	library:create_toggle("Hit Effect", "Something", function(toggled)
-		hit_effect_Enabled = toggled
-	end)
-
-	library:create_toggle("Night Mode", "Something", function(toggled)
-		night_mode_Enabled = toggled
-	end)
-	
-	library:create_toggle("Trail", "Something", function(toggled)
-		trail_Enabled = toggled
-	end)
-
-	library:create_toggle("Ball Trail", "Something", function(toggled)
-		ball_trial_Enabled = toggled
-	end)
-
-
 	task.spawn(function()
 		RunService.RenderStepped:Connect(function()
 			if not auto_spam or not workspace.Alive:FindFirstChild(local_player.Name) or training_mode then
@@ -1164,5 +1098,3 @@ end)
 		end)
 
 	end)
-
-	initializate("nurysium_temp")
