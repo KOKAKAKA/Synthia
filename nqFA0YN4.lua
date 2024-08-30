@@ -20,3 +20,34 @@ _G.AI = false
 _G.Farm = false
 _G.TP = false
 _G.Spectate = false
+
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+----------------------------------------------------------------------------------------------------------------------------------------------
+local Window = Fluent:CreateWindow({
+    Title = "Nova X",
+    SubTitle = "Reborn | By Kia",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(500, 320),
+    Acrylic = true,
+    Theme = "Amethyst",
+    MinimizeKey = Enum.KeyCode.End
+})
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "atom" }),
+  Misc = Window:AddTab({ Title = "Misc", Icon = "settings-2" }),
+  Main = Window:AddTab({ Title = "Credits", Icon = "user" }),
+}
+local Options = Fluent.Options
+do
+Tabs.Main:AddButton({
+        Title = "Auto Parry",
+        Description = "Main Parry",
+        Callback = function()
+        _G.Parry = true
+        _G.Spam = true
+        _G.Visual = true
+        _G.CurveSpam = true
+        end
+    })
