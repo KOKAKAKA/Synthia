@@ -45,7 +45,7 @@ local Toggle = Tab:AddToggle("Auto Parry",
 {
     Title = "Auto Parry", 
     Description = "Main Parry",
-    Default = false
+    Default = false,
     Callback = function(state)
     _G.Parry = state
     _G.Spam = state
