@@ -506,8 +506,6 @@ task.spawn(function()
 	end)
 end)
 
-print("Baka Hub XD LEST GOOOO")
-
 task.defer(function()
 	game:GetService("RunService").Heartbeat:Connect(function()
 		if not local_player.Character then
