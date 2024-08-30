@@ -5,3 +5,4 @@ repeat wait() until game:IsLoaded()
 
 _G.Parry = false
 _G.Spam = false
+_G.Curve = false
