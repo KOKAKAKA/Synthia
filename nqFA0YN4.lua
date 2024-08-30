@@ -34,22 +34,25 @@ local Window = Fluent:CreateWindow({
     Theme = "Amethyst",
     MinimizeKey = Enum.KeyCode.End
 })
+
 local Tabs = {
-  Main = Window:AddTab({ Title = "Main", Icon = "atom" }),
-  Misc = Window:AddTab({ Title = "Misc", Icon = "settings-2" }),
-  Credits = Window:AddTab({ Title = "Credits", Icon = "user" }),
+    Main = Window:AddTab({ Title = "Main", Icon = "atom" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "settings-2" }),
+    Credits = Window:AddTab({ Title = "Credits", Icon = "user" }),
 }
+
 local Options = Fluent.Options
+
 do
-local Toggle = Tab:AddToggle("Auto Parry", 
-{
-    Title = "Auto Parry", 
-    Description = "Main Parry",
-    Default = false,
-    Callback = function(state),
-    _G.Parry = state
-    _G.Spam = state
-    _G.Visual = state
-    end 
-})
+    local MainTab = Tabs.Main
+    local Toggle = MainTab:AddToggle("Auto Parry", {
+        Title = "Auto Parry",
+        Description = "Main Parry",
+        Default = false,
+        Callback = function(state)
+            _G.Parry = state
+            _G.Spam = state
+            _G.Visual = state
+        end
+    })
 end
