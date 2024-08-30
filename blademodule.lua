@@ -1202,8 +1202,6 @@ do
 
             _G.Visual = state
 
-            loading()
-
         end
 
     })
