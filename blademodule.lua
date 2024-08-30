@@ -1,3 +1,4 @@
+if _G.Ran == true then return end
 local Stats = game:GetService("Stats")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
