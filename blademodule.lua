@@ -1,4 +1,5 @@
 if _G.Ran == true then return end
+repeat wait() until game:IsLoaded()
 local Stats = game:GetService("Stats")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
