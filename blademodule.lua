@@ -16,6 +16,7 @@ end
 local local_player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
+print("Modules By Synthia")
 
 local originalParryRemote
 local originalResolveParryRemote 
