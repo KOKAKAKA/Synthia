@@ -52,3 +52,4 @@ local Toggle = Tab:AddToggle("Auto Parry",
     _G.Visual = state
     end 
 })
+end
