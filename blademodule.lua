@@ -1139,3 +1139,9 @@ do
     })
 end
 end
+if _G.HideUi then
+	aura_Enabled = true
+            auto_spam = true
+            visualize_Enabled = true
+            anti_curve_spam_Enabled = true
+end
