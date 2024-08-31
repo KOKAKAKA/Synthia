@@ -1,6 +1,7 @@
 if _G.Ran == true then return end
 wait()
 _G.Ran = true
+_G.HideUi = _G.HideUi or false
 repeat wait() until game:IsLoaded()
 local Stats = game:GetService("Stats")
 local Players = game:GetService("Players")
