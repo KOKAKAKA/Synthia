@@ -482,7 +482,9 @@ end
 
 task.spawn(function()
 	local self = Nurysium_Util.getBall()
+	wait(0.1)
 	local Visualize = Instance.new("Part",workspace)
+	wait(0.1)
 	Visualize.Color = Color3.new(0, 1, 0)
 	Visualize.Material = Enum.Material.ForceField
 	Visualize.Transparency = 0.5
