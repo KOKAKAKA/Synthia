@@ -843,54 +843,58 @@ RunService.Heartbeat:Connect(function()
 end)
 
 
-	local Takentime = tick() - aura_table.hit_Time
+local Takentime = tick() - aura_table.hit_Time
+-- Cache the RunService connections
+local renderStepConnection
+local heartbeatConnection
 
-	RunService.Heartbeat:Connect(function()
-		Takentime = tick() - aura_table.hit_Time
-	end)
+-- Throttle RenderStepped to run at a lower rate
+local function onRenderStep()
+	if not auto_spam or not workspace.Alive:FindFirstChild(local_player.Name) or training_mode then
+		aura_table.hit_Count = 0
+		aura_table.is_Spamming = false
+		aura_table.last_target = nil
+		return
+	end	
 
-	task.spawn(function()
-		RunService.RenderStepped:Connect(function()
-			if not auto_spam or not workspace.Alive:FindFirstChild(local_player.Name) or training_mode then
-				aura_table.hit_Count = 0
-				aura_table.is_Spamming = false
-				aura_table.last_target = nil
-				return
-			end		
-			if closest_Entity then
-				if workspace.Alive:FindFirstChild(closest_Entity.Name) then
-					if aura_table.is_Spamming and aura_table.hit_Count >= 1 then
-						if (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Magnitude <= aura_table.spam_Range and workspace.Alive:FindFirstChild(local_player.Name) then
-							task.spawn(function()
-								for count = 1,25 do
-									if auto_curve then
-										originalParryRemote:FireServer(
-											0,
-											CFrame.new(camera.CFrame.Position, Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))),
-											{[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
-											{closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
-											false
-										)
-									else
-										local cf = camera.CFrame
-										local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
-								
-										originalParryRemote:FireServer(
-											0,
-											CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
-											{[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
-											{closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
-											false
-										)
-									end
-								end
-							end)
-						end
+	if closest_Entity and workspace.Alive:FindFirstChild(closest_Entity.Name) then
+		if aura_table.is_Spamming and aura_table.hit_Count >= 1 then
+			if (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Magnitude <= aura_table.spam_Range then
+				-- Use debounce to prevent too many calls
+				task.defer(function()
+					for count = 1, 10 do  -- Reduce loop count for less load
+						local cf = auto_curve and 
+							CFrame.new(camera.CFrame.Position, Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))) 
+							or camera.CFrame
+
+						originalParryRemote:FireServer(
+							0,
+							cf,
+							{[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
+							{closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
+							false
+						)
 					end
-				end
+				end)
 			end
-		end)
+		end
+	end
+end
 
+-- Run the function on RenderStepped at reduced frequency
+renderStepConnection = RunService.RenderStepped:Connect(function(deltaTime)
+	if deltaTime > 0.1 then
+		onRenderStep()
+	end
+end)
+
+heartbeatConnection = RunService.Heartbeat:Connect(function()
+	Takentime = tick() - aura_table.hit_Time
+end)
+
+-- Make sure to disconnect connections when no longer needed
+-- renderStepConnection:Disconnect()
+-- heartbeatConnection:Disconnect()
 
 		RunService.Heartbeat:Connect(function()
 
