@@ -21,7 +21,7 @@ local local_player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
 print("Modules By Synthia")
-local MauaulSpam = nil
+
 local originalParryRemote
 local originalResolveParryRemote 
 
@@ -179,7 +179,7 @@ function ManualSpam()
 
 -- Instances:
 
-MauaulSpam = Instance.new("ScreenGui")
+local MauaulSpam = Instance.new("ScreenGui")
 local Main = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
 local IndercantorBlahblah = Instance.new("Frame")
@@ -1195,37 +1195,5 @@ do
             tp_hit = state
         end
     })
-	local Toggle8 = MainTab:AddToggle("Manual Spam", {
-        Title = "Manual Spam",
-        Description = "L + Ratio Just Use Auto Spam",
-        Default = false,
-        Callback = function(state)
-				if state and MauaulSpam then
-            MauaulSpam.Transparency = 0
-				elseif state and not MauaulSpam then
-					ManualSpam()
-				else
-					MauaulSpam.Transparency = 1
-				end
-        end
-    })
-	
-    local ScreenGui = Instance.new("ScreenGui")
-local ImageButton = Instance.new("TextButton")
-local UICorner = Instance.new("UICorner")
-
-ScreenGui.Parent = game.CoreGui
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-ImageButton.Parent = ScreenGui
-ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ImageButton.BorderSizePixel = 0
-ImageButton.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
-ImageButton.Size = UDim2.new(0, 50, 0, 50)
-ImageButton.Draggable = true
-ImageButton.Text = "Open"
-ImageButton.TextColor3 = Color3.new(255,255,255)
-ImageButton.MouseButton1Down:connect(function()
-    game:GetService("VirtualInputManager"):SendKeyEvent(true,Enum.KeyCode.End,false,game)
-end)
 end
+print("loading succesfull by Synthia")
