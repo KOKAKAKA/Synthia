@@ -1136,7 +1136,7 @@ do
         end
     })
 	local Toggle1 = MainTab:AddToggle("Visualizer", {
-        Title = "Might Not Work",
+        Title = "Visualizer",
         Description = "Might Not Work",
         Default = false,
         Callback = function(state)
@@ -1144,8 +1144,8 @@ do
         end
     })
 	local Toggle2 = MainTab:AddToggle("Better Spam", {
-        Title = "Might Lag For Potato Device",
-        Description = "Might Not Work + Trash",
+        Title = "Faster Spam",
+        Description = "Might Lag For Potato Device",
         Default = false,
         Callback = function(state)
             if state then
@@ -1156,19 +1156,43 @@ do
         end
     })
 	local Toggle3 = MainTab:AddToggle("Auto Curve", {
-        Title = "Might Backfire",
-        Description = "Bad",
+        Title = "Auto Curve",
+        Description = "Bad + Not Recommend",
         Default = false,
         Callback = function(state)
             auto_curve = state
         end
     })
 	local Toggle4 = MainTab:AddToggle("Anti Spam Curve", {
-        Title = "Might Not Work",
+        Title = "Anti Spam Curve",
         Description = "Might Not Work",
         Default = false,
         Callback = function(state)
             anti_curve_spam_Enabled = state
+        end
+    })
+	local Toggle5 = MainTab:AddToggle("Auto Farm", {
+        Title = "Auto Farm",
+        Description = "Not Always Win",
+        Default = false,
+        Callback = function(state)
+            auto_win = state
+        end
+    })
+	local Toggle6 = MainTab:AddToggle("AI", {
+        Title = "AI",
+        Description = "Might Not Work + Bad",
+        Default = false,
+        Callback = function(state)
+            ai_Enabled = state
+        end
+    })
+	local Toggle = MainTab:AddToggle("Tp Hit", {
+        Title = "Tp Hit",
+        Description = "Might Not Work + Bad",
+        Default = false,
+        Callback = function(state)
+            tp_hit = state
         end
     })
 end
