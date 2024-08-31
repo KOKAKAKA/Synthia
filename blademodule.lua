@@ -1,7 +1,6 @@
 if _G.Ran == true then return end
 wait()
 _G.Ran = true
-_G.HideUi = _G.HideUi or false
 repeat wait() until game:IsLoaded()
 local Stats = game:GetService("Stats")
 local Players = game:GetService("Players")
@@ -1102,7 +1101,6 @@ end)
 		end)
 
 	end)
-if not _G.HideUi then
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -1138,11 +1136,4 @@ do
             anti_curve_spam_Enabled = state
         end
     })
-end
-end
-if _G.HideUi then
-	aura_Enabled = true
-            auto_spam = true
-            visualize_Enabled = true
-            anti_curve_spam_Enabled = true
 end
