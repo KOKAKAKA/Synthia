@@ -862,7 +862,6 @@ end)
 					if aura_table.is_Spamming and aura_table.hit_Count >= 1 then
 						if (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Magnitude <= aura_table.spam_Range and workspace.Alive:FindFirstChild(local_player.Name) then
 							task.spawn(function()
-									RunService.RenderStepped:Connect(function()	
 								for count = 1,20 do
 									if auto_curve then
 										originalParryRemote:FireServer(
@@ -890,7 +889,6 @@ end)
 					end
 				end
 			end
-		end)
 			end)
 
 		RunService.Heartbeat:Connect(function()
