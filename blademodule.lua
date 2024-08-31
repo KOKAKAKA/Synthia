@@ -28,7 +28,7 @@ local originalResolveParryRemote
 local nurysium_Data = nil
 local hit_Sound = nil
 local closest_Entity = nil
-
+local potanum = 20
 local aura_Enabled = false
 local auto_curve = false
 local auto_spam = false
@@ -484,7 +484,7 @@ task.spawn(function()
 	local self = Nurysium_Util.getBall()
 	wait(0.1)
 	local Visualize = Instance.new("Part",workspace)
-	wait(0.1)
+	wait(0.5)
 	Visualize.Color = Color3.new(0, 1, 0)
 	Visualize.Material = Enum.Material.ForceField
 	Visualize.Transparency = 0.5
@@ -862,7 +862,7 @@ end)
 					if aura_table.is_Spamming and aura_table.hit_Count >= 1 then
 						if (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Magnitude <= aura_table.spam_Range and workspace.Alive:FindFirstChild(local_player.Name) then
 							task.spawn(function()
-								for count = 1,20 do
+								for count = 1,potanum do
 									if auto_curve then
 										originalParryRemote:FireServer(
 											0,
@@ -1133,7 +1133,41 @@ do
         Callback = function(state)
             aura_Enabled = state
             auto_spam = state
+        end
+    })
+	local Toggle1 = MainTab:AddToggle("Visualizer", {
+        Title = "Might Not Work",
+        Description = "Might Not Work",
+        Default = false,
+        Callback = function(state)
             visualize_Enabled = state
+        end
+    })
+	local Toggle2 = MainTab:AddToggle("Better Spam", {
+        Title = "Might Lag For Potato Device",
+        Description = "Might Not Work + Trash",
+        Default = false,
+        Callback = function(state)
+            if state then
+			potanum = 30
+				else
+					potanum = 20
+				end
+        end
+    })
+	local Toggle3 = MainTab:AddToggle("Auto Curve", {
+        Title = "Might Backfire",
+        Description = "Bad",
+        Default = false,
+        Callback = function(state)
+            auto_curve = state
+        end
+    })
+	local Toggle4 = MainTab:AddToggle("Anti Spam Curve", {
+        Title = "Might Not Work",
+        Description = "Might Not Work",
+        Default = false,
+        Callback = function(state)
             anti_curve_spam_Enabled = state
         end
     })
