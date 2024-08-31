@@ -21,7 +21,7 @@ local local_player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
 print("Modules By Synthia")
-
+local MauaulSpam = nil
 local originalParryRemote
 local originalResolveParryRemote 
 
@@ -179,7 +179,7 @@ function ManualSpam()
 
 -- Instances:
 
-local MauaulSpam = Instance.new("ScreenGui")
+MauaulSpam = Instance.new("ScreenGui")
 local Main = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
 local IndercantorBlahblah = Instance.new("Frame")
@@ -1209,6 +1209,7 @@ do
 				end
         end
     })
+	
     local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("TextButton")
 local UICorner = Instance.new("UICorner")
@@ -1225,6 +1226,6 @@ ImageButton.Draggable = true
 ImageButton.Text = "Open"
 ImageButton.TextColor3 = Color3.new(255,255,255)
 ImageButton.MouseButton1Down:connect(function()
-    game:GetService("VirtualInputManager"):SendKeyEvent(true,Enum.KeyCode.LeftControl,false,game)
+    game:GetService("VirtualInputManager"):SendKeyEvent(true,Enum.KeyCode.End,false,game)
 end)
 end
