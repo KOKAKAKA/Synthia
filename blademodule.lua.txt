@@ -1,6 +1,3 @@
-if _G.Ran == true then return end
-wait()
-_G.Ran = true
 repeat wait() until game:IsLoaded()
 local Stats = game:GetService("Stats")
 local Players = game:GetService("Players")
