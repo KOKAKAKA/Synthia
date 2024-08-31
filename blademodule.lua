@@ -1187,12 +1187,26 @@ do
             ai_Enabled = state
         end
     })
-	local Toggle = MainTab:AddToggle("Tp Hit", {
+	local Toggle7 = MainTab:AddToggle("Tp Hit", {
         Title = "Tp Hit",
         Description = "Might Not Work + Bad",
         Default = false,
         Callback = function(state)
             tp_hit = state
+        end
+    })
+	local Toggle8 = MainTab:AddToggle("Manual Spam", {
+        Title = "Manual Spam",
+        Description = "L + Ratio Just Use Auto Spam",
+        Default = false,
+        Callback = function(state)
+				if state and MauaulSpam then
+            MauaulSpam.Transparency = 0
+				elseif state and not MauaulSpam then
+					ManualSpam()
+				else
+					MauaulSpam.Transparency = 1
+				end
         end
     })
 end
