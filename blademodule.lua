@@ -850,46 +850,56 @@ end)
 	end)
 
 	task.spawn(function()
-		RunService.RenderStepped:Connect(function()
-			if not auto_spam or not workspace.Alive:FindFirstChild(local_player.Name) or training_mode then
-				aura_table.hit_Count = 0
-				aura_table.is_Spamming = false
-				aura_table.last_target = nil
-				return
-			end		
-			if closest_Entity then
-				if workspace.Alive:FindFirstChild(closest_Entity.Name) then
-					if aura_table.is_Spamming and aura_table.hit_Count >= 1 then
-						if (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Magnitude <= aura_table.spam_Range and workspace.Alive:FindFirstChild(local_player.Name) then
-							task.spawn(function()
-								for count = 1,25 do
-									if auto_curve then
-										originalParryRemote:FireServer(
-											0,
-											CFrame.new(camera.CFrame.Position, Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))),
-											{[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
-											{closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
-											false
-										)
-									else
-										local cf = camera.CFrame
-										local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
-								
-										originalParryRemote:FireServer(
-											0,
-											CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
-											{[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
-											{closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
-											false
-										)
-									end
-								end
-							end)
-						end
-					end
-				end
-			end
-		end)
+		local debounce = false
+
+RunService.RenderStepped:Connect(function(deltaTime)
+    if debounce then return end
+    debounce = true
+    
+    -- Add a short delay before allowing the next execution
+    task.delay(0.1, function()
+        debounce = false
+    end)
+
+    if not auto_spam or not workspace.Alive:FindFirstChild(local_player.Name) or training_mode then
+        aura_table.hit_Count = 0
+        aura_table.is_Spamming = false
+        aura_table.last_target = nil
+        return
+    end
+
+    if closest_Entity and workspace.Alive:FindFirstChild(closest_Entity.Name) then
+        if aura_table.is_Spamming and aura_table.hit_Count >= 1 then
+            local playerPosition = local_player.Character.PrimaryPart.Position
+            local entityPosition = closest_Entity.HumanoidRootPart.Position
+            if (playerPosition - entityPosition).Magnitude <= aura_table.spam_Range then
+                task.defer(function()
+                    for count = 1, 10 do  -- Reduced loop count for performance
+                        if auto_curve then
+                            originalParryRemote:FireServer(
+                                0,
+                                CFrame.new(camera.CFrame.Position, Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))),
+                                {[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
+                                {closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
+                                false
+                            )
+                        else
+                            local cf = camera.CFrame
+                            local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
+                            originalParryRemote:FireServer(
+                                0,
+                                CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
+                                {[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
+                                {closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
+                                false
+                            )
+                        end
+                    end
+                end)
+            end
+        end
+    end
+end)
 
 
 		RunService.Heartbeat:Connect(function()
