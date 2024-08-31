@@ -7,10 +7,8 @@ elseif game.PlaceId == 7449423635 then
 else
     game:GetService("Players").LocalPlayer:Kick("Do not Support, Please wait...")
 end
-if not game:IsLoaded() then
- game.Loaded:Wait()
-end
-local scriptloadedfunct = false
+
+local scriptloadedfunct = true
 local Players = game:GetService("Players")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local TweenService = game:GetService("TweenService")
@@ -2547,7 +2545,7 @@ CamShake:Stop()
         return "Remaining " .. 10 - v228 .. " training sessions."
     end
 
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/KOKAKAKA/Orion/main/source')))()
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/KOKAKAKA/Orion/main/source'))()
 local Window = OrionLib:MakeWindow({Name = "NovaX Hub", HidePremium = false, IntroText = "", SaveConfig = false, ConfigFolder = "NovaX Hub"})
 
 OrionLib:MakeNotification({
@@ -2561,7 +2559,7 @@ OrionLib:MakeNotification({
     Name = "NovaX Hub",
     Content = "Loading...",
     Image = "rbxassetid://4483345998",
-    Time = 5
+    Time = scriptloadedfunct
 })
 
 -------------Tab-----------------------
@@ -11398,9 +11396,8 @@ end)
 
 OrionLib:Init()
 
-scriptloadedfunct = true
-task.wait(scriptloadedfunct()
-screenGui:Destroy()
+scriptloadedfunct = 1
+
 OrionLib:MakeNotification({
     Name = "NovaX Hub (BETA)",
     Content = "Loading Config Complete!!",
