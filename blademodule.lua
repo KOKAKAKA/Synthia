@@ -577,7 +577,7 @@ task.spawn(function()
 	Highlight.OutlineColor = Color3.new(1, 1, 1)
 
 	RunService.RenderStepped:Connect(function()
-		if visualize_Enabled and self and local_player then
+		if visualize_Enabled and self then
 			Visualize.Transparency = 0
 			Visualize.Material = Enum.Material.ForceField
 			Visualize.Size = Vector3.new(aura_table.parry_Range,aura_table.parry_Range,aura_table.parry_Range)
