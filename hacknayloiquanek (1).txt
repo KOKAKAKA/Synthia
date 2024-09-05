@@ -724,7 +724,7 @@ UICorner2.Parent = SkipImg
 
 SkipButton.Font = Enum.Font.Merriweather
 SkipButton.Text = "Next Player"
-SkipButton.TextColor3 = Color3.fromRGB(38, 235, 41)
+SkipButton.TextColor3 = Color3.fromRGB(251, 198, 207)
 SkipButton.TextSize = 15
 SkipButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 SkipButton.BackgroundTransparency = 0.9990000128746033
